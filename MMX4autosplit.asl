@@ -155,7 +155,7 @@ split
 			return true;
 		}
 	}
-	//split on boss explosion
+	//split on boss explosion, can probably consolidate this a lot but it seems to work for now which is good enough
 	else
 	{
 		//split after stingray
@@ -257,7 +257,6 @@ split
 			print("Split on " + vars.getBossName(current.level) + " teleport");
 			return true;
 		}
-		print(current.level.ToString() + " " + current.allOtherBossHp.ToString() + " " + vars.colonelTeleportCount.ToString() + " " + current.colonel1Teleport.ToString());
 	}
 	
 	//split after dragoon revisit
