@@ -59,13 +59,17 @@ state("EmuHawk", "2.3.0")
 startup
 {
 	print("startup called");
+	
+	//set the refresh rate to once a second until the octoshock.dll is found
+	refreshRate = 1;
+	
 	settings.Add("teleportSplit", true, "Split on teleport instead of boss explosion");
 	settings.SetToolTip("teleportSplit", "Turn off if you want to split on boss explosion");
 	settings.Add("fadeSplit", true, "Split on fade to black after refights");
 	settings.SetToolTip("fadeSplit", "Turn off if you want to split on gold teleport");
 	settings.Add("revisitSplit", true, "Split when exit is selected after the Dragoon revist");
 	settings.SetToolTip("revisitSplit", "Turn off if you don't want this split");
-	settings.Add("doubleSplit", true, "Split after Double");
+	settings.Add("doubleSplit", true, "Split after Double/Iris");
 	settings.SetToolTip("doubleSplit", "Turn off if you don't want this split");
 
 	LiveSplit.Model.Input.EventHandlerT<LiveSplit.Model.TimerPhase> resetAction = (s,e) =>
@@ -125,6 +129,11 @@ init
 {
 	print("init called");
 	
+	if(!modules.Any(m => m.ModuleName == "octoshock.dll"))
+	{
+		throw new Exception("Can't find octoshock.dll");
+	}
+	
 	//set version
 	byte[] exeMD5HashBytes = null;
 	using (var md5 = System.Security.Cryptography.MD5.Create())
@@ -149,6 +158,9 @@ init
 	//initialize the variables
 	vars.armorSplitOccurred = false; //probably unneeded since doing the revisit twice would kill your run
 	vars.colonelTeleportCount = 0; //hacky variable since I can't find a useful memory address
+	
+	//reset to the default refresh rate
+	refreshRate = 60;
 }
 
 start
@@ -206,14 +218,14 @@ split
 			return true;
 		}
 		
-		//split after double
+		//split after double/iris
 		if(settings["doubleSplit"]
 			&& current.level == vars.doubleGeneral
 			&& current.stage == 0
 			&& ((current.characterFlag == 0 && (current.triggerTeleport == 16 || current.triggerTeleport == 1) && current.teleportAnimationStart == 80 && old.teleportAnimationStart != 80)
 				|| (current.characterFlag == 1 && (current.triggerTeleport == 64 && old.triggerTeleport != 64))))
 		{
-			print("Split after Double");
+			print("Split after Double/Iris");
 			return true;
 		}
 	}
@@ -361,6 +373,12 @@ split
 		print("Final split");
 		return true;
 	}
+}
+
+exit
+{
+	//set the refresh rate to once a second until the octoshock.dll is found
+	refreshRate = 1;
 }
 
 shutdown
