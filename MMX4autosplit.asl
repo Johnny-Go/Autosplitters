@@ -5,7 +5,8 @@ state("EmuHawk", "2.3.1,2.3.2")
 	byte stage: "octoshock.dll", 0x28FA4D; //0 for stage one, 1 for stage 2
 	byte characterSelect1: "octoshock.dll", 0x28FA41; //when set to 4 along with characterSelect2 being set to 1
 	byte characterSelect2: "octoshock.dll", 0x28FA66; //when set to 1 along with characterSelect1 being set to 4
-	byte generalDialogStart: "octoshock.dll", 0x291585; //1 for starting General's dialog
+	byte generalDialogStartX: "octoshock.dll", 0x291585; //1 for starting General's dialog as X
+	byte generalDialogStartZero: "octoshock.dll", 0x291525; //1 for starting General's dialog as Zero
 	byte triggerTeleport: "octoshock.dll", 0x28FA4F; //triggers teleport on 16 (fanfare plays first), 1 (just teleports), 64 (fade to black)
 	byte teleportAnimationStart: "octoshock.dll", 0x25F17C; //when 80 starts teleport animation for X, 136/220 for Zero
 	byte goldTeleportActive: "octoshock.dll", 0x283459; //when 2 the gold teleporter is active
@@ -33,7 +34,8 @@ state("EmuHawk", "2.3.0")
 	byte stage: "octoshock.dll", 0x28FA7D; //0 for stage one, 1 for stage 2
 	byte characterSelect1: "octoshock.dll", 0x28FA71; //when set to 4 along with characterSelect2 being set to 1
 	byte characterSelect2: "octoshock.dll", 0x28FA96; //when set to 1 along with characterSelect1 being set to 4
-	byte generalDialogStart: "octoshock.dll", 0x2915B5; //1 for starting General's dialog
+	byte generalDialogStartX: "octoshock.dll", 0x2915B5; //1 for starting General's dialog as X
+	byte generalDialogStartZero: "octoshock.dll", 0x291555; //1 for starting General's dialog as Zero
 	byte triggerTeleport: "octoshock.dll", 0x28FA7F; //triggers teleport on 16 (fanfare plays first), 1 (just teleports), 64 (fade to black)
 	byte teleportAnimationStart: "octoshock.dll", 0x25F1AC; //when 80 starts teleport animation for X, 136/220 for Zero
 	byte goldTeleportActive: "octoshock.dll", 0x283489; //when 2 the gold teleporter is active
@@ -208,10 +210,8 @@ split
 		if(settings["doubleSplit"]
 			&& current.level == vars.doubleGeneral
 			&& current.stage == 0
-			&& (current.triggerTeleport == 16 || current.triggerTeleport == 1)
-			&& ((current.characterFlag == 0 && current.teleportAnimationStart == 80 && old.teleportAnimationStart != 80)
-				|| (current.characterFlag == 1 && current.teleportAnimationStart == 136 && old.teleportAnimationStart != 136)
-				|| (current.characterFlag == 1 && current.teleportAnimationStart == 220 && old.teleportAnimationStart != 220)))
+			&& ((current.characterFlag == 0 && (current.triggerTeleport == 16 || current.triggerTeleport == 1) && current.teleportAnimationStart == 80 && old.teleportAnimationStart != 80)
+				|| (current.characterFlag == 1 && (current.triggerTeleport == 64 && old.triggerTeleport != 64))))
 		{
 			print("Split after Double");
 			return true;
@@ -256,12 +256,12 @@ split
 			return true;
 		}
 		
-		//split after double
+		//split after double / iris
 		if(current.level == vars.doubleGeneral
 			&& current.stage == 0
 			&& (current.beastDoubleExplosion == 26 && old.beastDoubleExplosion != 26))
 		{
-			print("Split on " + vars.getBossName(current.level) + " explosion");
+			print("Split on Double/Iris explosion");
 			return true;
 		}
 		
@@ -297,7 +297,7 @@ split
 			&& current.stage == 0
 			&& (current.owlPeacockColonel2Explosion == 26 && old.owlPeacockColonel2Explosion != 26))
 		{
-			print("Split on " + vars.getBossName(current.level) + " explosion");
+			print("Split on Colonel 2 explosion");
 			return true;
 		}
 		
@@ -316,7 +316,7 @@ split
 			&& vars.colonelTeleportCount == 2
 			&& (current.colonel1Teleport == 177 && old.colonel1Teleport != 177))
 		{
-			print("Split on " + vars.getBossName(current.level) + " teleport");
+			print("Split on Colonel 1 teleport");
 			return true;
 		}
 	}
@@ -344,7 +344,9 @@ split
 	}
 	else if(!settings["fadeSplit"]
 		&& current.goldTeleportActive == 2
-		&& (current.teleportAnimationStart == 80 && old.teleportAnimationStart != 80))
+		&& ((current.characterFlag == 0 && current.teleportAnimationStart == 80 && old.teleportAnimationStart != 80)
+			|| (current.characterFlag == 1 && current.teleportAnimationStart == 136 && old.teleportAnimationStart != 136)
+			|| (current.characterFlag == 1 && current.teleportAnimationStart == 220 && old.teleportAnimationStart != 220)))
 	{
 		print("Split after Refights - gold teleport");
 		return true;
@@ -353,7 +355,8 @@ split
 	//split on loss of control after sigma
 	if (current.level == vars.refightsSigma
 		&& current.stage == 1
-		&& current.generalDialogStart == 1) 
+		&& ((current.characterFlag == 0 && current.generalDialogStartX == 1 && old.generalDialogStartX != 1)
+			|| (current.characterFlag == 1 && current.generalDialogStartZero == 1 && old.generalDialogStartZero != 1)))
 	{
 		print("Final split");
 		return true;
