@@ -14,6 +14,7 @@ state("EmuHawk", "2.3.1,2.3.2")
 	byte exitSelected: "octoshock.dll", 0x292D50; //when 1 and menu is closed exit level
 	byte allOtherBossHp: "octoshock.dll", 0x2597AC; //every boss except for the first dragoon fight and double
 	byte characterFlag: "octoshock.dll", 0x28FA83; //0 if  X or 1 if Zero
+	byte useForTeleport: "octoshock.dll", 0x25F1B2; // normally set to 15, set to 0 on teleport after boss, level select, boss door transitions and some other times
 	
 	//boss explosion memory addresses
 	byte stingrayRefightsExplosion: "octoshock.dll", 0x260969; //26 seems to be the value when explosion starts
@@ -43,6 +44,7 @@ state("EmuHawk", "2.3.0")
 	byte exitSelected: "octoshock.dll", 0x292D80; //when 1 and menu is closed exit level
 	byte allOtherBossHp: "octoshock.dll", 0x2597DC; //every boss except for the first dragoon fight and double
 	byte characterFlag: "octoshock.dll", 0x28FAB3; //0 if  X or 1 if Zero
+	byte useForTeleport: "octoshock.dll", 0x25F1E2; // normally set to 15, set to 0 on teleport after boss, level select, boss door transitions and some other times
 	
 	//boss explosion memory addresses
 	byte stingrayRefightsExplosion: "octoshock.dll", 0x260999; //26 seems to be the value when explosion starts
@@ -50,7 +52,7 @@ state("EmuHawk", "2.3.0")
 	byte dragoonExplosion: "octoshock.dll", 0x260A59; //26 seems to be the value when explosion starts
 	byte beastDoubleExplosion: "octoshock.dll", 0x260939; //26 seems to be the value when explosion starts
 	byte eregionMushroomExplosion: "octoshock.dll", 0x260969; //26 seems to be the value when explosion starts
-	byte spiderExplosion: "octoshock.dll", 0x2609F9; //26 seems to be the value when explosion starts
+	byte spiderExplosion: "octoshock.dll", 0x2609F9; //26 seems to be the value when explosiz n starts
 	byte owlPeacockColonel2Explosion: "octoshock.dll", 0x260909; //26 seems to be the value when explosion starts
 	byte generalExplosion: "octoshock.dll", 0x260849; //26 seems to be the value when explosion starts
 	byte colonel1Teleport: "octoshock.dll", 0x25979A; //177 seems to be the value when Colonel 1 teleports after the fight
@@ -67,7 +69,7 @@ startup
 	settings.SetToolTip("teleportSplit", "Turn off if you want to split on boss explosion");
 	settings.Add("fadeSplit", true, "Split on fade to black after refights");
 	settings.SetToolTip("fadeSplit", "Turn off if you want to split on gold teleport");
-	settings.Add("revisitSplit", true, "Split when exit is selected after the Dragoon revist");
+	settings.Add("revisitSplit", true, "Split after Dragoon revisit when exit is selected");
 	settings.SetToolTip("revisitSplit", "Turn off if you don't want this split");
 	settings.Add("doubleSplit", true, "Split after Double/Iris");
 	settings.SetToolTip("doubleSplit", "Turn off if you don't want this split");
@@ -198,10 +200,7 @@ split
 		//split on teleport after boss except colonel 1, colonel 2, double, refights, and sigma
 		if(current.stage == 1
 			&& (current.triggerTeleport == 16 || current.triggerTeleport == 1)
-			&& ((current.characterFlag == 0 && current.teleportAnimationStart == 80 && old.teleportAnimationStart != 80)
-				|| (current.characterFlag == 1 && current.teleportAnimationStart == 136 && old.teleportAnimationStart != 136)
-				|| (current.characterFlag == 1 && current.teleportAnimationStart == 220 && old.teleportAnimationStart != 220))
-			&& current.exitSelected == 0)
+			&& (current.useForTeleport == 0 && old.useForTeleport != 0))
 		{
 			print("Split after " + vars.getBossName(current.level));
 			return true;
@@ -210,9 +209,7 @@ split
 		//split after colonel 1 and 2
 		if((current.level == vars.colonel1 || current.level == vars.colonel2)
 			&& (current.triggerTeleport == 16 || current.triggerTeleport == 1)
-			&& ((current.characterFlag == 0 && current.teleportAnimationStart == 80 && old.teleportAnimationStart != 80)
-				|| (current.characterFlag == 1 && current.teleportAnimationStart == 136 && old.teleportAnimationStart != 136)
-				|| (current.characterFlag == 1 && current.teleportAnimationStart == 220 && old.teleportAnimationStart != 220)))
+			&& (current.useForTeleport == 0 && old.useForTeleport != 0))
 		{
 			print("Split after " + (current.level == vars.colonel1 ? "Colonel 1" : "Colonel 2"));
 			return true;
@@ -222,103 +219,45 @@ split
 		if(settings["doubleSplit"]
 			&& current.level == vars.doubleGeneral
 			&& current.stage == 0
-			&& ((current.characterFlag == 0 && (current.triggerTeleport == 16 || current.triggerTeleport == 1) && current.teleportAnimationStart == 80 && old.teleportAnimationStart != 80)
+			&& ((current.characterFlag == 0 && (current.triggerTeleport == 16 || current.triggerTeleport == 1) && (current.useForTeleport == 0 && old.useForTeleport != 0))
 				|| (current.characterFlag == 1 && (current.triggerTeleport == 64 && old.triggerTeleport != 64))))
 		{
 			print("Split after Double/Iris");
 			return true;
 		}
 	}
-	//split on boss explosion, can probably consolidate this a lot but it seems to work for now which is good enough
+	//split on boss explosion
 	else
 	{
-		//split after stingray
-		if(current.level == vars.jetStingray
-			&& current.stage == 1
-			&& (current.stingrayRefightsExplosion == 26 && old.stingrayRefightsExplosion != 26))
+		//if the second half of the level, and a boss is exploding split
+		if(current.stage == 1
+			&& ((current.stingrayRefightsExplosion == 26 && old.stingrayRefightsExplosion != 26) //stingray
+				|| (current.walrusExplosion == 26 && old.walrusExplosion != 26) //walrus
+				|| (current.dragoonExplosion == 26 && old.dragoonExplosion != 26) //dragoon
+				|| (current.beastDoubleExplosion == 26 && old.beastDoubleExplosion != 26) //beast
+				|| (current.eregionMushroomExplosion == 26 && old.eregionMushroomExplosion != 26) //eregion and mushroom
+				|| (current.spiderExplosion == 26 && old.spiderExplosion != 26) //spider
+				|| (current.owlPeacockColonel2Explosion == 26 && old.owlPeacockColonel2Explosion != 26) //owl and peacock
+				|| (current.generalExplosion == 26 && old.generalExplosion != 26))) //general
 		{
 			print("Split on " + vars.getBossName(current.level) + " explosion");
 			return true;
 		}
 		
-		//split after walrus
-		if(current.level == vars.frostWalrus
-			&& current.stage == 1
-			&& (current.walrusExplosion == 26 && old.walrusExplosion != 26))
+		//if first half of a the level and a boss is exploding split as long as it's not the refights
+		if(current.stage == 0
+			&& current.level != 12
+			&& ((settings["doubleSplit"] && current.beastDoubleExplosion == 26 && old.beastDoubleExplosion != 26) //double and iris
+				|| (current.owlPeacockColonel2Explosion == 26 && old.owlPeacockColonel2Explosion != 26))) //colonel 2
 		{
-			print("Split on " + vars.getBossName(current.level) + " explosion");
-			return true;
-		}
-		
-		//split after dragoon
-		if(current.level == vars.magmaDragoon
-			&& current.stage == 1
-			&& (current.dragoonExplosion == 26 && old.dragoonExplosion != 26))
-		{
-			print("Split on " + vars.getBossName(current.level) + " explosion");
-			return true;
-		}
-		
-		//split after beast
-		if(current.level == vars.slashBeast
-			&& current.stage == 1
-			&& (current.beastDoubleExplosion == 26 && old.beastDoubleExplosion != 26))
-		{
-			print("Split on " + vars.getBossName(current.level) + " explosion");
-			return true;
-		}
-		
-		//split after double / iris
-		if(current.level == vars.doubleGeneral
-			&& current.stage == 0
-			&& (current.beastDoubleExplosion == 26 && old.beastDoubleExplosion != 26))
-		{
-			print("Split on Double/Iris explosion");
-			return true;
-		}
-		
-		//split after eregion/mushroom
-		if((current.level == vars.splitMushroom || current.level == vars.introLevel)
-			&& current.stage == 1
-			&& (current.eregionMushroomExplosion == 26 && old.eregionMushroomExplosion != 26))
-		{
-			print("Split on " + vars.getBossName(current.level) + " explosion");
-			return true;
-		}
-		
-		//split after spider
-		if(current.level == vars.webSpider
-			&& current.stage == 1
-			&& (current.spiderExplosion == 26 && old.spiderExplosion != 26))
-		{
-			print("Split on " + vars.getBossName(current.level) + " explosion");
-			return true;
-		}
-		
-		//split after owl/peacock
-		if((current.level == vars.stormOwl || current.level == vars.cyberPeacock)
-			&& current.stage == 1
-			&& (current.owlPeacockColonel2Explosion == 26 && old.owlPeacockColonel2Explosion != 26))
-		{
-			print("Split on " + vars.getBossName(current.level) + " explosion");
-			return true;
-		}
-		
-		//split after colonel 2
-		if(current.level == vars.colonel2
-			&& current.stage == 0
-			&& (current.owlPeacockColonel2Explosion == 26 && old.owlPeacockColonel2Explosion != 26))
-		{
-			print("Split on Colonel 2 explosion");
-			return true;
-		}
-		
-		//split after general
-		if(current.level == vars.doubleGeneral
-			&& current.stage == 1
-			&& (current.generalExplosion == 26 && old.generalExplosion != 26))
-		{
-			print("Split on " + vars.getBossName(current.level) + " explosion");
+			if(current.level == 11)
+			{
+				print("Split on Double/Iris explosion");
+			}
+			else
+			{
+				print("Split on Colonel 2 explosion");
+			}
 			return true;
 		}
 		
@@ -377,6 +316,8 @@ split
 
 exit
 {
+	print("exit called");
+	
 	//set the refresh rate to once a second until the octoshock.dll is found
 	refreshRate = 1;
 }
