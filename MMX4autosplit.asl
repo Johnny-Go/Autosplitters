@@ -29,7 +29,6 @@ startup
 	LiveSplit.Model.Input.EventHandlerT<LiveSplit.Model.TimerPhase> resetAction = (s,e) =>
 	{
 		vars.armorSplitOccurred = false;
-		vars.colonelTeleportCount = 0;
 		vars.allowColonelSplit = false;
 	};
 	vars.resetAction = resetAction;
@@ -234,7 +233,6 @@ init
 	
 	//initialize the variables
 	vars.armorSplitOccurred = false; //probably unneeded since doing the revisit twice would kill your run
-	vars.colonelTeleportCount = 0; //hacky variable since I can't find a useful memory address
 	vars.colonelTest = false;
 	
 	//reset to the default refresh rate
