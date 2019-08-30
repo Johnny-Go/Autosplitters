@@ -233,7 +233,7 @@ init
 	
 	//initialize the variables
 	vars.armorSplitOccurred = false; //probably unneeded since doing the revisit twice would kill your run
-	vars.colonelTest = false;
+	vars.allowColonelSplit = false;
 	
 	//reset to the default refresh rate
 	refreshRate = 60;
