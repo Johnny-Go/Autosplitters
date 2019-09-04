@@ -30,6 +30,7 @@ startup
 	{
 		vars.armorSplitOccurred = false;
 		vars.allowColonelSplit = false;
+		vars.allowZeroSigmaSplit = false;
 	};
 	vars.resetAction = resetAction;
 	timer.OnReset += vars.resetAction;
@@ -145,7 +146,7 @@ startup
 			new MemoryWatcher<byte>(memoryStart + 0x260909 + additionalOffset) { Name = "beastDoubleIrisExplosion" }, //26 seems to be the value when explosion starts
 			new MemoryWatcher<byte>(memoryStart + 0x260939 + additionalOffset) { Name = "eregionMushroomExplosion" }, //26 seems to be the value when explosion starts
 			new MemoryWatcher<byte>(memoryStart + 0x2609C9 + additionalOffset) { Name = "spiderExplosion" }, //26 seems to be the value when explosion starts
-			new MemoryWatcher<byte>(memoryStart + 0x2608D9 + additionalOffset) { Name = "owlPeacockColonel2Explosion" }, //26 seems to be the value when explosion starts
+			new MemoryWatcher<byte>(memoryStart + 0x2608D9 + additionalOffset) { Name = "owlPeacockColonel2Sigma2and3Explosion" }, //26 seems to be the value when explosion starts
 			new MemoryWatcher<byte>(memoryStart + 0x260819 + additionalOffset) { Name = "generalExplosion" }, //26 seems to be the value when explosion starts
 			new MemoryWatcher<byte>(memoryStart + 0x259754 + additionalOffset) { Name = "colonelDefeated" }, //2 when colonel1 has been defeated
 			new MemoryWatcher<byte>(memoryStart + 0x259753 + additionalOffset) { Name = "colonelOnScreen" }, //1 when colone11 is present on screen
@@ -179,7 +180,7 @@ startup
 			new MemoryWatcher<byte>(memoryStart + 0x138F71 + additionalOffset) { Name = "beastDoubleIrisExplosion" }, //26 seems to be the value when explosion starts
 			new MemoryWatcher<byte>(memoryStart + 0x138FA1 + additionalOffset) { Name = "eregionMushroomExplosion" }, //26 seems to be the value when explosion starts
 			new MemoryWatcher<byte>(memoryStart + 0x139031 + additionalOffset) { Name = "spiderExplosion" }, //26 seems to be the value when explosion starts
-			new MemoryWatcher<byte>(memoryStart + 0x138F41 + additionalOffset) { Name = "owlPeacockColonel2Explosion" }, //26 seems to be the value when explosion starts
+			new MemoryWatcher<byte>(memoryStart + 0x138F41 + additionalOffset) { Name = "owlPeacockColonel2Sigma2and3Explosion" }, //26 seems to be the value when explosion starts
 			new MemoryWatcher<byte>(memoryStart + 0x138E81 + additionalOffset) { Name = "generalExplosion" }, //26 seems to be the value when explosion starts
 			new MemoryWatcher<byte>(memoryStart + 0x13E0E4 + additionalOffset) { Name = "colonelDefeated" }, //2 when colonel1 has been defeated
 			new MemoryWatcher<byte>(memoryStart + 0x13E0E3 + additionalOffset) { Name = "colonelOnScreen" }, //1 when colone11 is present on screen
@@ -233,7 +234,8 @@ init
 	
 	//initialize the variables
 	vars.armorSplitOccurred = false; //probably unneeded since doing the revisit twice would kill your run
-	vars.allowColonelSplit = false;
+	vars.allowColonelSplit = false; //probably can find some other value that works making this variable irrelevant 
+	vars.allowZeroSigmaSplit = false; //probably can find some other value that works making this variable irrelevant 
 	
 	//reset to the default refresh rate
 	refreshRate = 60;
@@ -281,10 +283,18 @@ update
 		&& vars.watchers["allOtherBossHp"].Current == 0
 		&& vars.watchers["colonelDefeated"].Current == 2
 		&& vars.watchers["bossHpBars"].Current == 0
-		&& vars.watchers["colonelOnScreen"].Current == 1
-		)
+		&& vars.watchers["colonelOnScreen"].Current == 1)
 	{
 		vars.allowColonelSplit = true;
+	}
+	
+	//allow splitting after sigma dies
+	if(vars.watchers["characterFlag"].Current == 1
+		&& vars.watchers["level"].Current == vars.refightsSigma
+		&& vars.watchers["stage"].Current == 1
+		&& vars.watchers["owlPeacockColonel2Sigma2and3Explosion"].Current == 26 && vars.watchers["owlPeacockColonel2Sigma2and3Explosion"].Old != 26)
+	{
+		vars.allowZeroSigmaSplit = true;
 	}
 }
 
@@ -327,14 +337,15 @@ split
 	else
 	{
 		//if the second half of the level, and a boss is exploding split
-		if(vars.watchers["stage"].Current == 1
+		if(vars.watchers["level"].Current != vars.refightsSigma
+			&& vars.watchers["stage"].Current == 1
 			&& ((vars.watchers["stingrayRefightsExplosion"].Current == 26 && vars.watchers["stingrayRefightsExplosion"].Old != 26) //stingray
 				|| (vars.watchers["walrusExplosion"].Current == 26 && vars.watchers["walrusExplosion"].Old != 26) //walrus
 				|| (vars.watchers["dragoonExplosion"].Current == 26 && vars.watchers["dragoonExplosion"].Old != 26) //dragoon
 				|| (vars.watchers["beastDoubleIrisExplosion"].Current == 26 && vars.watchers["beastDoubleIrisExplosion"].Old != 26) //beast
 				|| (vars.watchers["eregionMushroomExplosion"].Current == 26 && vars.watchers["eregionMushroomExplosion"].Old != 26) //eregion and mushroom
 				|| (vars.watchers["spiderExplosion"].Current == 26 && vars.watchers["spiderExplosion"].Old != 26) //spider
-				|| (vars.watchers["owlPeacockColonel2Explosion"].Current == 26 && vars.watchers["owlPeacockColonel2Explosion"].Old != 26) //owl and peacock
+				|| (vars.watchers["owlPeacockColonel2Sigma2and3Explosion"].Current == 26 && vars.watchers["owlPeacockColonel2Sigma2and3Explosion"].Old != 26) //owl and peacock
 				|| (vars.watchers["generalExplosion"].Current == 26 && vars.watchers["generalExplosion"].Old != 26))) //general
 		{
 			print("Split on " + vars.getBossName(vars.watchers["level"].Current) + " explosion");
@@ -345,7 +356,7 @@ split
 		if(vars.watchers["stage"].Current == 0
 			&& vars.watchers["level"].Current != 12
 			&& ((settings["doubleSplit"] && vars.watchers["beastDoubleIrisExplosion"].Current == 26 && vars.watchers["beastDoubleIrisExplosion"].Old != 26) //double and iris
-				|| (vars.watchers["owlPeacockColonel2Explosion"].Current == 26 && vars.watchers["owlPeacockColonel2Explosion"].Old != 26))) //colonel 2
+				|| (vars.watchers["owlPeacockColonel2Sigma2and3Explosion"].Current == 26 && vars.watchers["owlPeacockColonel2Sigma2and3Explosion"].Old != 26))) //colonel 2
 		{
 			if(vars.watchers["level"].Current == 11)
 			{
@@ -372,6 +383,7 @@ split
 	//split after dragoon revisit
 	if(settings["revisitSplit"]
 		&& vars.watchers["level"].Current == vars.magmaDragoon
+		&& vars.watchers["stage"].Current == 0
 		&& vars.watchers["upgrades"].Current == 14
 		&& vars.watchers["exitSelected"].Current == 1
 		&& !vars.armorSplitOccurred)
@@ -403,7 +415,7 @@ split
 	if (vars.watchers["level"].Current == vars.refightsSigma
 		&& vars.watchers["stage"].Current == 1
 		&& ((vars.watchers["characterFlag"].Current == 0 && vars.watchers["generalDialogStartX"].Current == 1 && vars.watchers["generalDialogStartX"].Old != 1)
-			|| (vars.watchers["characterFlag"].Current == 1 && vars.watchers["generalDialogStartZero"].Current == 1 && vars.watchers["generalDialogStartZero"].Old != 1)))
+			|| (vars.watchers["characterFlag"].Current == 1 && vars.allowZeroSigmaSplit && vars.watchers["generalDialogStartZero"].Current == 1 && vars.watchers["generalDialogStartZero"].Old != 1)))
 	{
 		print("Final split");
 		return true;
