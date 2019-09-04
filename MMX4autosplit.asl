@@ -354,11 +354,11 @@ split
 		
 		//if first half of a the level and a boss is exploding split as long as it's not the refights
 		if(vars.watchers["stage"].Current == 0
-			&& vars.watchers["level"].Current != 12
+			&& vars.watchers["level"].Current != vars.refightsSigma
 			&& ((settings["doubleSplit"] && vars.watchers["beastDoubleIrisExplosion"].Current == 26 && vars.watchers["beastDoubleIrisExplosion"].Old != 26) //double and iris
 				|| (vars.watchers["owlPeacockColonel2Sigma2and3Explosion"].Current == 26 && vars.watchers["owlPeacockColonel2Sigma2and3Explosion"].Old != 26))) //colonel 2
 		{
-			if(vars.watchers["level"].Current == 11)
+			if(vars.watchers["level"].Current == vars.doubleGeneral)
 			{
 				print("Split on Double/Iris explosion");
 			}
