@@ -383,7 +383,7 @@ split
 	//split after dragoon revisit
 	if(settings["revisitSplit"]
 		&& vars.watchers["level"].Current == vars.magmaDragoon
-		&& vars.watchers["stage"].Current == 0
+		&& vars.watchers["stage"].Current == 1
 		&& vars.watchers["upgrades"].Current == 14
 		&& vars.watchers["exitSelected"].Current == 1
 		&& !vars.armorSplitOccurred)
