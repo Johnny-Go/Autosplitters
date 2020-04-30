@@ -85,17 +85,17 @@ init
 		new MemoryWatcher<byte>((IntPtr)memoryOffset + 0x07D1) { Name = "enemy11Sprite" },
 		new MemoryWatcher<byte>((IntPtr)memoryOffset + 0x0831) { Name = "enemy12Sprite" },
 		new MemoryWatcher<byte>((IntPtr)memoryOffset + 0x0891) { Name = "enemy13Sprite" },
-		new MemoryWatcher<byte>((IntPtr)memoryOffset + 0x08F1) { Name = "enemy14Health" },
-		new MemoryWatcher<byte>((IntPtr)memoryOffset + 0x0951) { Name = "enemy15Health" },
-		new MemoryWatcher<byte>((IntPtr)memoryOffset + 0x09B1) { Name = "enemy16Health" },
-		new MemoryWatcher<byte>((IntPtr)memoryOffset + 0x0A11) { Name = "enemy17Health" },
-		new MemoryWatcher<byte>((IntPtr)memoryOffset + 0x0A71) { Name = "enemy18Health" },
-		new MemoryWatcher<byte>((IntPtr)memoryOffset + 0x0AD1) { Name = "enemy19Health" },
-		new MemoryWatcher<byte>((IntPtr)memoryOffset + 0x0B31) { Name = "enemy20Health" },
-		new MemoryWatcher<byte>((IntPtr)memoryOffset + 0x0B91) { Name = "enemy21Health" },
-		new MemoryWatcher<byte>((IntPtr)memoryOffset + 0x0BF1) { Name = "enemy22Health" },
-		new MemoryWatcher<byte>((IntPtr)memoryOffset + 0x0C51) { Name = "enemy23Health" },
-		new MemoryWatcher<byte>((IntPtr)memoryOffset + 0x0CB1) { Name = "enemy24Health" }
+		new MemoryWatcher<byte>((IntPtr)memoryOffset + 0x08F1) { Name = "enemy14Sprite" },
+		new MemoryWatcher<byte>((IntPtr)memoryOffset + 0x0951) { Name = "enemy15Sprite" },
+		new MemoryWatcher<byte>((IntPtr)memoryOffset + 0x09B1) { Name = "enemy16Sprite" },
+		new MemoryWatcher<byte>((IntPtr)memoryOffset + 0x0A11) { Name = "enemy17Sprite" },
+		new MemoryWatcher<byte>((IntPtr)memoryOffset + 0x0A71) { Name = "enemy18Sprite" },
+		new MemoryWatcher<byte>((IntPtr)memoryOffset + 0x0AD1) { Name = "enemy19Sprite" },
+		new MemoryWatcher<byte>((IntPtr)memoryOffset + 0x0B31) { Name = "enemy20Sprite" },
+		new MemoryWatcher<byte>((IntPtr)memoryOffset + 0x0B91) { Name = "enemy21Sprite" },
+		new MemoryWatcher<byte>((IntPtr)memoryOffset + 0x0BF1) { Name = "enemy22Sprite" },
+		new MemoryWatcher<byte>((IntPtr)memoryOffset + 0x0C51) { Name = "enemy23Sprite" },
+		new MemoryWatcher<byte>((IntPtr)memoryOffset + 0x0CB1) { Name = "enemy24Sprite" }
 	};
 	
 	//initialize variables
@@ -203,7 +203,7 @@ split
 		return true;
 	}
 	
-	//cloud boss is weird, hopefully it's health doens't get placed in different places in memory like the other bosses
+	//cloud boss is weird, hopefully it's health doesn't get placed in different places in memory like the other bosses
 	if(vars.watchers["globalStage"].Current == 18 && vars.watchers["cloudHealth"].Current == 0 && vars.watchers["cloudHealth"].Old != 0)
 	{
 		print("Cloud dead");
