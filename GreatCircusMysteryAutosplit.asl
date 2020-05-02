@@ -36,8 +36,7 @@ init
 	{
 		throw new Exception("Memory not yet initialized.");
 	}
-	
-	
+		
 	vars.watchers = new MemoryWatcherList
 	{
 		new MemoryWatcher<byte>((IntPtr)memoryOffset + 0x00A0) { Name = "screenIndicator" },
