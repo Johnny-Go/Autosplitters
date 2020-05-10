@@ -1,6 +1,6 @@
 //Autosplitter created by JohnnyGo
 //Retroarch sigscan copied from BenInSweeden's update to the SMW Autosplitter
-//Currently just supports retroarch with the 'Snes9x - Current' core
+//Currently just supports retroarchX64 with the 'Snes9x - Current' core
 
 state("retroarch") {}
 
