@@ -1,6 +1,6 @@
 //Autosplitter created by JohnnyGo
 //Retroarch sigscan copied from BenInSweeden's update to the SMW Autosplitter
-//Currently just supports retroarchX64 with the 'Snes9x - Current' core
+//Currently just supports retroarch with the 'Snes9x - Current' core
 
 state("retroarch") {}
 
@@ -60,7 +60,7 @@ start
 
 split
 {
-	if(vars.watchers["endLevelFlag"].Current == 2 && vars.watchers["endLevelCount"].Current == 247)
+	if(vars.watchers["endLevelFlag"].Current == 2 && vars.watchers["endLevelCount"].Current == 247 && vars.watchers["endLevelCount"].Old != 247)
 	{
 		return true;
 	}
