@@ -97,8 +97,8 @@ update
 		case 15:
 			vars.deathSprite = 116;
 			break;
-		case 16:
-			vars.deathSprite = settings["miniboss"] ? 202 : -1;
+		case 16: //this is the sled weasel, it doesn't make sense to split when it dies since the level is on a timer, split on screen transition instead
+			//vars.deathSprite = -1; //202 for miniboss death sprite
 			break;
 		case 18: //this is the cloud boss stage, may be able to split on cloud hp as it's different from all other bosses
 			vars.deathSprite = -1;
@@ -145,6 +145,12 @@ split
 		{
 			return true;
 		}
+	}
+	
+	//split on screen transition for ice level
+	if(settings["miniboss"] && vars.watchers["globalStage"].Current == 17 && vars.watchers["globalStage"].Old == 16)
+	{
+		return true;
 	}
 	
 	//cloud boss is weird, hopefully it's health doesn't get placed in different places in memory like the other bosses
