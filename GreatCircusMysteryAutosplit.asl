@@ -98,7 +98,7 @@ update
 			vars.deathSprite = 116;
 			break;
 		case 16: //this is the sled weasel, it doesn't make sense to split when it dies since the level is on a timer, split on screen transition instead
-			//vars.deathSprite = -1; //202 for miniboss death sprite
+			vars.deathSprite = -1; //202 for miniboss death sprite
 			break;
 		case 18: //this is the cloud boss stage, may be able to split on cloud hp as it's different from all other bosses
 			vars.deathSprite = -1;
