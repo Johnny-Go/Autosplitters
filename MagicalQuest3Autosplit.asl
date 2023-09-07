@@ -40,7 +40,8 @@ init
 		new MemoryWatcher<byte>((IntPtr)memoryOffset + 0x3784) { Name = "startedThree" },
 		new MemoryWatcher<byte>((IntPtr)memoryOffset + 0x3785) { Name = "startedFour" },
 		new MemoryWatcher<byte>((IntPtr)memoryOffset + 0x008E) { Name = "globalStage" },
-		new MemoryWatcher<byte>((IntPtr)memoryOffset + 0x0A6F) { Name = "peteHealth" }
+		new MemoryWatcher<byte>((IntPtr)memoryOffset + 0x0A6F) { Name = "peteHealth" },
+		new MemoryWatcher<byte>((IntPtr)memoryOffset + 0x0A00) { Name = "peteDead" }
 	};
 }
 
@@ -88,7 +89,9 @@ split
 	}
 
 	//split on last hit for pete
-	if(vars.watchers["globalStage"].Current == 25 && vars.watchers["peteHealth"].Current == 0 && vars.watchers["peteHealth"].Old != 0)
+	if(vars.watchers["globalStage"].Current == 25
+		&& vars.watchers["peteHealth"].Current == 0
+		&& vars.watchers["peteDead"].Current == 176 && vars.watchers["peteDead"].Old != 160)
 	{
 		return true;
 	}
