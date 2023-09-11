@@ -8,7 +8,7 @@ state("duckstation-nogui-x64-ReleaseLTCG") {}
 //1721CD		stage
 //1721C1		characterSelect1
 //1721E6		characterSelect2
-//11D880		generalDialogStartX
+//173D05		generalDialogStartX
 //173CA5		generalDialogStartZero
 //1721CF		triggerTeleport
 //16E5EE		xBlueTeleport
@@ -25,18 +25,18 @@ state("EmuHawk") {}
 //byte level :									"octoshock.dll", 0x1721CC;
 //byte stage :									"octoshock.dll", 0x1721CD;
 //byte characterSelect1 :						"octoshock.dll", 0x1721C1;
-//byte characterSelect2 :						"octoshock.dll", 0x1721E6
-//byte generalDialogStartX :					"octoshock.dll", 0x11D880
-//byte generalDialogStartZero :					"octoshock.dll", 0x173CA5
-//byte triggerTeleport :						"octoshock.dll", 0x1721CF
-//byte xBlueTeleport :							"octoshock.dll", 0x16E5EE
-//byte zeroRedTeleport :						"octoshock.dll", 0x16E617
-//byte goldTeleportActive :						"octoshock.dll", 0x165BD9
-//byte upgrades :								"octoshock.dll", 0x172207
-//byte exitSelected :							"octoshock.dll", 0x1754D0
-//byte characterFlag :							"octoshock.dll", 0x172203
-//byte useForTeleport :							"octoshock.dll", 0x141932
-//byte owlPeacockColonel2Sigma2and3Explosion :	"octoshock.dll", 0x143059
+//byte characterSelect2 :						"octoshock.dll", 0x1721E6;
+//byte generalDialogStartX :					"octoshock.dll", 0x173D05;
+//byte generalDialogStartZero :					"octoshock.dll", 0x173CA5;
+//byte triggerTeleport :						"octoshock.dll", 0x1721CF;
+//byte xBlueTeleport :							"octoshock.dll", 0x16E5EE;
+//byte zeroRedTeleport :						"octoshock.dll", 0x16E617;
+//byte goldTeleportActive :						"octoshock.dll", 0x165BD9;
+//byte upgrades :								"octoshock.dll", 0x172207;
+//byte exitSelected :							"octoshock.dll", 0x1754D0;
+//byte characterFlag :							"octoshock.dll", 0x172203;
+//byte useForTeleport :							"octoshock.dll", 0x141932;
+//byte owlPeacockColonel2Sigma2and3Explosion :	"octoshock.dll", 0x143059;
 
 state("MMX4") {}
 //byte level :									"x4.exe", 0x13A04C;
@@ -55,9 +55,22 @@ state("MMX4") {}
 //byte useForTeleport :							"x4.exe", 0x144F6A;
 //byte owlPeacockColonel2Sigma2and3Explosion :	"x4.exe", 0x138F41;
 
-state("RXC2") {
-	
-}
+state("RXC1") {}
+//byte level :									"RXC1.exe, ;
+//byte stage :									"RXC1.exe, ;
+//byte characterSelect1 :						"RXC1.exe, ;
+//byte characterSelect2 :						"RXC1.exe, ;
+//byte generalDialogStartX :					"RXC1.exe, ;
+//byte generalDialogStartZero :					"RXC1.exe, ;
+//byte triggerTeleport :						"RXC1.exe, ;
+//byte xBlueTeleport :							"RXC1.exe, ;
+//byte zeroRedTeleport :						"RXC1.exe, ;
+//byte goldTeleportActive :						"RXC1.exe, ;
+//byte upgrades :								"RXC1.exe, ;
+//byte exitSelected :							"RXC1.exe, ;
+//byte characterFlag :							"RXC1.exe, ;
+//byte useForTeleport :							"RXC1.exe, ;
+//byte owlPeacockColonel2Sigma2and3Explosion :	"RXC1.exe, ;
 
 startup {
 	print("--[Autosplitter] Starting up!");
@@ -110,7 +123,7 @@ init {
 			new MemoryWatcher<byte>(new DeepPointer(vars.myBaseAddress + 0x1721CD)) { Name = "stage" }, //0 for stage one, 1 for stage 2
 			new MemoryWatcher<byte>(new DeepPointer(vars.myBaseAddress + 0x1721C1)) { Name = "characterSelect1" }, //when set to 4 along with characterSelect2 being set to 1
 			new MemoryWatcher<byte>(new DeepPointer(vars.myBaseAddress + 0x1721E6)) { Name = "characterSelect2" }, //when set to 1 along with characterSelect1 being set to 4
-			new MemoryWatcher<byte>(new DeepPointer(vars.myBaseAddress + 0x11D880)) { Name = "generalDialogStartX" }, //1 for starting General's post Sigma dialog as X
+			new MemoryWatcher<byte>(new DeepPointer(vars.myBaseAddress + 0x173D05)) { Name = "generalDialogStartX" }, //1 for starting General's post Sigma dialog as X
 			new MemoryWatcher<byte>(new DeepPointer(vars.myBaseAddress + 0x173CA5)) { Name = "generalDialogStartZero" }, //1 for starting General's post Sigma dialog as Zero
 			new MemoryWatcher<byte>(new DeepPointer(vars.myBaseAddress + 0x1721CF)) { Name = "triggerTeleport" }, //triggers teleport on 16 (fanfare plays first), 1 (just teleports), 64 (fade to black)
 			new MemoryWatcher<byte>(new DeepPointer(vars.myBaseAddress + 0x16E5EE)) { Name = "xBlueTeleport" }, //for X 238 when blue teleport starts
@@ -206,10 +219,27 @@ init {
 			}
 			else if (processName == "rxc1")
 			{
+				vars.myBaseAddress = modules.First().BaseAddress;
+				print("base:" + vars.myBaseAddress);
 				vars.watchers = new MemoryWatcherList()
 				{
+					new MemoryWatcher<byte>(new DeepPointer(vars.myBaseAddress + 0x0179B0F4, 0xA4)) { Name = "level" }, //0-12 for levels that have bosses
+					new MemoryWatcher<byte>(new DeepPointer(vars.myBaseAddress + 0x0179B0F4, 0xA5)) { Name = "stage" }, //0 for stage one, 1 for stage 2
+					new MemoryWatcher<byte>(new DeepPointer(vars.myBaseAddress + 0x0179B0F4, 0x61)) { Name = "characterSelect1" }, //when set to 4 along with characterSelect2 being set to 1
+					new MemoryWatcher<byte>(new DeepPointer(vars.myBaseAddress + 0x0179B0F4, 0xBE)) { Name = "characterSelect2" }, //when set to 1 along with characterSelect1 being set to 4
+					new MemoryWatcher<byte>(new DeepPointer(vars.myBaseAddress)) { Name = "generalDialogStartX" }, //1 for starting General's post Sigma dialog as X
+					new MemoryWatcher<byte>(new DeepPointer(vars.myBaseAddress)) { Name = "generalDialogStartZero" }, //1 for starting General's post Sigma dialog as Zero
+					new MemoryWatcher<byte>(new DeepPointer(vars.myBaseAddress + 0x0179B0F4, 0xA7)) { Name = "triggerTeleport" }, //triggers teleport on 16 (fanfare plays first), 1 (just teleports), 64 (fade to black)
+					new MemoryWatcher<byte>(new DeepPointer(vars.myBaseAddress)) { Name = "xBlueTeleport" }, //for X 238 when blue teleport starts
+					new MemoryWatcher<byte>(new DeepPointer(vars.myBaseAddress)) { Name = "zeroRedTeleport" }, //for Zero 136 when red teleport starts
+					new MemoryWatcher<byte>(new DeepPointer(vars.myBaseAddress)) { Name = "goldTeleportActive" }, //when 2 the gold teleporter is active
+					new MemoryWatcher<byte>(new DeepPointer(vars.myBaseAddress + 0x0179B0F4, 0xEF)) { Name = "upgrades" }, //stores equipment upgrade (0001 for helm, 0010 for armor, 0100 for buster, 1000 for boots) (14 for splitting on dragoon revisit)
+					new MemoryWatcher<byte>(new DeepPointer(vars.myBaseAddress + 0x01741544, 0x26C, 0X30, 0x6C)) { Name = "exitSelected" }, //when 1 and menu is closed exit level
+					new MemoryWatcher<byte>(new DeepPointer(vars.myBaseAddress + 0x0179B0F4, 0xEB)) { Name = "characterFlag" }, //0 if  X or 1 if Zero
+					new MemoryWatcher<byte>(new DeepPointer(vars.myBaseAddress + 0x0179B0F4, 0xC5A)) { Name = "useForTeleport" }, //normally set to 15, set to 0 on teleport after boss, level select, boss door transitions and some other times
+					new MemoryWatcher<byte>(new DeepPointer(vars.myBaseAddress)) { Name = "owlPeacockColonel2Sigma2and3Explosion" }, //26 seems to be the value when explosion starts
 				};
-				vars.watchersInitialized = false;
+				vars.watchersInitialized = true;
 			}
 			
 			if (vars.watchersInitialized) {
